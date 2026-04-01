@@ -1,4 +1,11 @@
 let typingData = [];
+let difficultyIndexes = {
+  easy: -1,
+  medium: -1,
+  hard: -1,
+};
+const difficultyButtons = document.querySelectorAll(".difficulty-btn");
+const textSection = document.querySelector(".text-section");
 
 const loadData = async () => {
   try {
@@ -21,4 +28,20 @@ loadData();
 
 function startGame() {
   console.log(typingData);
+  difficultyButtons.forEach((difficulty) => {
+    difficulty.addEventListener("click", traverseText);
+  });
+
+  function traverseText(e) {
+    let type = e.target.dataset.difficultyType; //EAST MEDIUM HARD
+
+    if (typingData[type]) {
+      difficultyIndexes[type] =
+        (difficultyIndexes[type] + 1) % typingData[type].length;
+
+      let text = typingData[type][difficultyIndexes[type]].text;
+      let id = typingData[type][difficultyIndexes[type]].id;
+      textSection.innerText = `${text}   ID:${id}`;
+    }
+  }
 }
