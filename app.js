@@ -1,6 +1,6 @@
 let typingData = [];
 let difficultyIndexes = {
-  easy: -1,
+  easy: 0,
   medium: -1,
   hard: -1,
 };
@@ -31,7 +31,8 @@ const loadData = async () => {
 loadData();
 
 function startGame() {
-  console.log(typingData);
+  textSection.innerHTML = typingData["easy"][0].text;
+
   difficultyButtons.forEach((difficulty) => {
     difficulty.addEventListener("click", traverseText);
   });
@@ -40,26 +41,35 @@ function startGame() {
     let type = e.target.dataset.difficultyType; //EAST MEDIUM HARD
 
     if (typingData[type]) {
+      //charIndex = 0; reset index after each text
+      charIndex = 0;
+
       //difficultyIndexes[type]; easy=-1 , medium=-1 and hard=-1
       difficultyIndexes[type] =
         (difficultyIndexes[type] + 1) % typingData[type].length;
 
       let text = typingData[type][difficultyIndexes[type]].text;
+      let id = typingData[type][difficultyIndexes[type]].id;
       characters = text.split("");
 
       letters = characters.map((ch) => `<span>${ch}</span>`).join("");
 
-      textSection.innerHTML = letters;
+      textSection.innerHTML = `${letters} ID:${id}`;
     }
   }
 
   document.addEventListener("keydown", (e) => {
     let ch = e.key;
 
+    allSpanElement = textSection.querySelectorAll("span");
+
+    allSpanElement.forEach((span) => span.classList.remove("caret"));
+
     if (ch === "Backspace") {
       if (charIndex > 0) {
         charIndex--;
         allSpanElement[charIndex].classList.remove("correct", "in-correct");
+        allSpanElement[charIndex].classList.add("caret");
       }
 
       return;
@@ -67,8 +77,11 @@ function startGame() {
 
     e.preventDefault();
 
-    allSpanElement = textSection.querySelectorAll("span");
     const isAlphabet = /^[a-zA-Z0-9\s.,!?'";:()\-]$/.test(ch);
+
+    if (charIndex < allSpanElement.length) {
+      allSpanElement[charIndex + 1].classList.add("caret");
+    }
 
     if (charIndex < allSpanElement.length && isAlphabet) {
       if (ch === allSpanElement[charIndex].innerText) {
