@@ -8,10 +8,13 @@ let characters = [];
 let allSpanElement;
 let letters;
 let charIndex = 0;
+let timerStarted = false;
+let startTimer;
 const difficultyButtons = document.querySelectorAll(".difficulty-btn");
 const textSection = document.querySelector(".text-section");
 const modalContent = document.querySelector(".modal-content");
 const startBtn = document.getElementById("start-btn");
+const timerValue = document.getElementById("timer-value");
 
 const loadData = async () => {
   try {
@@ -75,6 +78,7 @@ function traverseText(type) {
 
 function handleTyping(e) {
   let ch = e.key;
+  timer();
 
   allSpanElement = textSection.querySelectorAll("span");
 
@@ -110,4 +114,20 @@ function handleTyping(e) {
     }
     charIndex++;
   }
+}
+
+function timer() {
+  if (timerStarted) return;
+  timerStarted = true;
+
+  let sec = 60;
+
+  startTimer = setInterval(() => {
+    sec--;
+    timerValue.innerText = `00:${sec < 10 ? "0" + sec : sec}`;
+
+    if (sec <= 0) {
+      clearInterval(startTimer);
+    }
+  }, 1000);
 }
