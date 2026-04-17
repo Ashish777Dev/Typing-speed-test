@@ -10,6 +10,8 @@ let letters;
 let charIndex = 0;
 const difficultyButtons = document.querySelectorAll(".difficulty-btn");
 const textSection = document.querySelector(".text-section");
+const modalContent = document.querySelector(".modal-content");
+const startBtn = document.getElementById("start-btn");
 
 const loadData = async () => {
   try {
@@ -41,6 +43,15 @@ function initEventListener() {
   });
 
   document.addEventListener("keydown", handleTyping);
+  textSection.addEventListener("click", () => {
+    textSection.style.filter = "none";
+    modalContent.style.display = "none";
+  });
+
+  startBtn.addEventListener("click", () => {
+    textSection.style.filter = "none";
+    modalContent.style.display = "none";
+  });
 }
 
 function traverseText(type) {
@@ -88,6 +99,8 @@ function handleTyping(e) {
   }
 
   if (charIndex < allSpanElement.length && isAlphabet) {
+    textSection.style.filter = isAlphabet ? "none" : "blur(1px)";
+    modalContent.style.display = isAlphabet ? "none" : "block";
     if (ch === allSpanElement[charIndex].innerText) {
       allSpanElement[charIndex].classList.add("correct");
       allSpanElement[charIndex].classList.remove("in-correct");
