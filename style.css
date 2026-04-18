@@ -145,12 +145,12 @@ nav > div {
   margin: 0px auto;
   width: 100%;
   height: max-content;
-  font-size: 1.2rem;
+  font-size: 3vw;
   font-weight: 500;
-  text-align: left;
-  padding: 1.2rem 0;
+  white-space: pre-wrap;
   filter: blur(1px);
   color: var(--Neutral-500--);
+  border: 1px solid red;
 }
 
 .correct {
