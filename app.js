@@ -5,18 +5,20 @@ let difficultyIndexes = {
   hard: -1,
 };
 let characters = [];
-let allSpanElement;
 let letters;
 let charIndex = 0;
 let timerStarted = false;
 let startTimer;
+let gameIsRunning = false;
 const difficultyButtons = document.querySelectorAll(".difficulty-btn");
 const textSection = document.querySelector(".text-section");
 const modalContent = document.querySelector(".modal-content");
+const modal = document.querySelector(".modal");
 const startBtn = document.getElementById("start-btn");
 const timerValue = document.getElementById("timer-value");
 const accuracyValue = document.getElementById("accuracy-value");
 
+console.log(modal);
 const loadData = async () => {
   try {
     const res = await fetch("./data.json");
@@ -28,15 +30,18 @@ const loadData = async () => {
     const data = await res.json();
     typingData = data;
 
-    initEventListener();
-
     traverseText("easy");
   } catch (error) {
     throw new Error("Failed to fetch data!");
   }
 };
 
-loadData();
+document.addEventListener("DOMContentLoaded", () => {
+  loadData();
+
+  // Put your initEventListener() call here to ensure elements exist first
+  initEventListener();
+});
 
 function addCaretToCurrentPosition() {
   let allSpan = textSection.querySelectorAll("span");
@@ -47,6 +52,15 @@ function addCaretToCurrentPosition() {
     firstSpan.classList.add("caret");
   }
 }
+
+function startGame() {
+  modalContent.style.display = "none";
+
+  gameIsRunning = true;
+
+  addCaretToCurrentPosition();
+}
+
 function initEventListener() {
   difficultyButtons.forEach((difficulty) => {
     difficulty.addEventListener("click", (e) => {
@@ -56,26 +70,14 @@ function initEventListener() {
   });
 
   document.addEventListener("keydown", handleTyping);
-  textSection.addEventListener("click", () => {
-    textSection.style.filter = "none";
-    modalContent.style.display = "none";
-  });
-
-  startBtn.addEventListener("click", () => {
-    textSection.style.filter = "none";
-    modalContent.style.display = "none";
-
-    // let firstSpan = textSection.querySelector("span");
-    // let allSpanElement = textSection.querySelectorAll("span");
-
-    // if (firstSpan) {
-    //   allSpanElement[charIndex].classList.add("caret");
-    // }
-    addCaretToCurrentPosition();
-  });
+  modalContent.addEventListener("click", startGame);
+  startBtn.addEventListener("click", startGame);
 }
 
 function traverseText(type) {
+  //if typing game started disable traverse text
+  if (gameIsRunning) return;
+
   //defaults to 'easy' type='easy'
   if (typingData[type]) {
     //charIndex = 0; reset index after each text
@@ -97,16 +99,6 @@ function traverseText(type) {
 
     textSection.innerHTML = `${letters} `;
 
-    // let firstSpan = textSection.querySelector("span");
-
-    // if (firstSpan) {
-    //   let span = textSection.querySelectorAll("span");
-
-    //   //clear all the caret of previous text
-    //   span.forEach((el) => el.classList.remove("caret"));
-
-    //   firstSpan.classList.add("caret");
-    // }
     addCaretToCurrentPosition();
   }
 }
@@ -116,7 +108,7 @@ function handleTyping(e) {
   timer();
 
   // taking all span element
-  allSpanElement = textSection.querySelectorAll("span");
+  const allSpanElement = textSection.querySelectorAll("span");
 
   //removing the previous 'caret' class of span element only one character should have blinking cursor caret
   allSpanElement.forEach((span) => span.classList.remove("caret"));
@@ -136,6 +128,7 @@ function handleTyping(e) {
   //check if user is typing alphabet or not
   const isAlphabet = /^[a-zA-Z0-9\s.,!?'";:()\-]$/.test(ch);
 
+  //prevent caret to move out of bound
   if (charIndex + 1 >= allSpanElement.length) {
     allSpanElement[charIndex].classList.add("caret");
     return;
@@ -144,13 +137,9 @@ function handleTyping(e) {
   //if its valid then  move caret forward or else stay on current position
   allSpanElement[isAlphabet ? charIndex + 1 : charIndex].classList.add("caret");
 
-  if (
-    allSpanElement.length > 0 &&
-    charIndex < allSpanElement.length &&
-    isAlphabet
-  ) {
-    // textSection.style.filter = isAlphabet ? "none" : "blur(1px)";
-    // modalContent.style.display = isAlphabet ? "none" : "block";
+  //if user has pressed the valid key then start the game and set modalContent display to none
+  if (isAlphabet) {
+    modalContent.style.display = "none";
     if (ch === allSpanElement[charIndex].innerText) {
       allSpanElement[charIndex].classList.add("correct");
       allSpanElement[charIndex].classList.remove("in-correct");
@@ -174,6 +163,7 @@ function timer() {
 
     if (sec <= 0) {
       clearInterval(startTimer);
+      gameIsRunning = false;
     }
   }, 1000);
 }
